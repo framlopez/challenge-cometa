@@ -42,12 +42,23 @@ export default function PlanetsTable() {
 		isPending,
 	} = useInfiniteQuery<PlanetsResponse, Error>({
 		queryKey: ["planets"],
-		queryFn: ({ pageParam = 1 }) => {
+		queryFn: async ({ pageParam = 1 }): Promise<PlanetsResponse> => {
 			const currentPage = Number.isNaN(pageParam) ? 1 : pageParam;
 
-			return fetch(`/api/planets?page=${currentPage}`).then((response) =>
-				response.json(),
-			) as Promise<PlanetsResponse>;
+			const response = await fetch(`/api/planets?page=${currentPage}`);
+			const data = (await response.json()) as
+				| PlanetsResponse
+				| { error?: string };
+
+			if (!response.ok || "error" in data) {
+				const errorMessage =
+					"error" in data
+						? data.error
+						: `Error ${response.status}: ${response.statusText}`;
+				throw new Error(errorMessage ?? "Error desconocido");
+			}
+
+			return data as PlanetsResponse;
 		},
 		initialPageParam: 1,
 		getNextPageParam: ({ pagination }) => {
