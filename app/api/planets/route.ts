@@ -27,7 +27,9 @@ export async function GET(request: NextRequest) {
 		const url = new URL(SWAPI_PLANETS_ENDPOINT);
 		url.searchParams.set("page", String(page));
 
-		const response = await fetch(url, { cache: "no-store" });
+		const response = await fetch(url, {
+			headers: { Accept: "application/json" },
+		});
 
 		if (!response.ok) {
 			throw new Error(`SWAPI request failed with status ${response.status}`);
