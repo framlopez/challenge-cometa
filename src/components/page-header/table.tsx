@@ -166,18 +166,15 @@ export default function PlanetsTable() {
 
 						{!isPending && data.length > 0
 							? table.getRowModel().rows.map((row) => (
-									<TableRow
-										key={row.id}
-										className="transition-colors odd:bg-white even:bg-gray-50"
-									>
+									<TableRow key={row.id}>
 										{row.getVisibleCells().map((cell) => (
 											<TableCell
-												key={cell.id}
 												style={{
 													width: cell.column.getSize(),
 													minWidth: cell.column.getSize(),
 													maxWidth: cell.column.getSize(),
 												}}
+												key={cell.id}
 											>
 												{flexRender(
 													cell.column.columnDef.cell,

@@ -24,17 +24,21 @@ const columns: ColumnDef<PlanetDTO>[] = [
 			const isSomeSelected = table.getIsSomePageRowsSelected();
 
 			return (
-				<Checkbox
-					checked={isSomeSelected ? "indeterminate" : isAllSelected}
-					onCheckedChange={(v) => table.toggleAllPageRowsSelected(!!v)}
-				/>
+				<div className="flex items-center justify-end">
+					<Checkbox
+						checked={isSomeSelected ? "indeterminate" : isAllSelected}
+						onCheckedChange={(v) => table.toggleAllPageRowsSelected(!!v)}
+					/>
+				</div>
 			);
 		},
 		cell: ({ row }) => (
-			<Checkbox
-				checked={row.getIsSelected()}
-				onCheckedChange={(v) => row.toggleSelected(!!v)}
-			/>
+			<div className="flex items-center justify-end">
+				<Checkbox
+					checked={row.getIsSelected()}
+					onCheckedChange={(v) => row.toggleSelected(!!v)}
+				/>
+			</div>
 		),
 	},
 	{
