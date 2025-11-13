@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
 		const response = await fetch(url, {
 			headers: {
 				accept: "application/json",
-				"Content-Type": "application/json",
+				"User-Agent": "Mozilla/5.0 (compatible; SWAPI-Client/1.0)",
 			},
 		});
 
