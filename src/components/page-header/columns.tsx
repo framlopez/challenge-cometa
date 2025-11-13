@@ -1,6 +1,6 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import type { PlanetDTO } from "@/app/api/planets/route";
 import { Checkbox } from "@/src/shadcn/ui/checkbox";
+import type { PlanetDTO } from "@/src/types/planet";
 import ClimateCell from "./cells/climate-cell";
 import DiameterCell from "./cells/diameter-cell";
 import FilmsCell from "./cells/films-cell";

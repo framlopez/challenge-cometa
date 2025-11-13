@@ -1,85 +1,16 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-
-const SWAPI_PLANETS_ENDPOINT = "https://swapi.py4e.com/api/planets/";
-const PLANETS_PER_PAGE = 10;
-
-function transformStringToNumberOrNull(value: string): number | null {
-	if (value === "unknown") return null;
-
-	const valueNum = Number.parseFloat(value);
-	if (Number.isNaN(valueNum)) return null;
-
-	return valueNum;
-}
-
-function transformStringToPeriodOrNull(
-	value: string,
-): { days: number; hours: number } | null {
-	if (value === "unknown") return null;
-
-	const valueNum = Number.parseFloat(value);
-	if (Number.isNaN(valueNum)) return null;
-
-	const days = Math.floor(valueNum / 24);
-	const hours = valueNum % 24;
-	return { days, hours };
-}
-
-const GRAVITY_CONSTANT = 9.8;
-function transformStringToGravityOrNull(value: string): number | null {
-	if (value === "unknown") return null;
-
-	const [number] = value.split(" ");
-
-	const valueNum = Number.parseFloat(number);
-	if (Number.isNaN(valueNum)) return null;
-
-	return valueNum * GRAVITY_CONSTANT;
-}
-
-function transformStringToStringArray(value: string): string[] {
-	if (value === "unknown") return [];
-
-	const items = value.split(",");
-	if (items.length === 0) return [];
-
-	return items;
-}
-
-type SwapiPlanet = {
-	name: string;
-	climate: string;
-	terrain: string;
-	gravity: string;
-	diameter: string;
-	rotation_period: string;
-	orbital_period: string;
-	surface_water: string;
-	population: string;
-	residents: string[];
-	films: string[];
-};
-
-type PlanetResponse = {
-	count: number;
-	next: string | null;
-	previous: string | null;
-	results: SwapiPlanet[];
-};
-
-export type PlanetDTO = {
-	name: string;
-	climate: string[];
-	terrain: string[];
-	gravity: number | null;
-	diameter: number | null;
-	rotationPeriod: { days: number; hours: number } | null;
-	surfaceWater: number | null;
-	population: number | null;
-	residents: number;
-	films: number;
-};
+import {
+	transformStringToGravityOrNull,
+	transformStringToNumberOrNull,
+	transformStringToPeriodOrNull,
+	transformStringToStringArray,
+} from "@/src/utils/planet-transformers";
+import {
+	PLANETS_PER_PAGE,
+	SWAPI_PLANETS_ENDPOINT,
+} from "../../../src/constants";
+import type { PlanetDTO, PlanetResponse } from "../../../src/types/planet";
 
 export async function GET(request: NextRequest) {
 	const pageParam = request.nextUrl.searchParams.get("page");
@@ -102,7 +33,7 @@ export async function GET(request: NextRequest) {
 			throw new Error(`SWAPI request failed with status ${response.status}`);
 		}
 
-		const data: PlanetResponse = await response.json();
+		const data = (await response.json()) as PlanetResponse;
 
 		const items: PlanetDTO[] = data.results.map((planet) => {
 			return {

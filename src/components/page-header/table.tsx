@@ -7,7 +7,6 @@ import {
 	useReactTable,
 } from "@tanstack/react-table";
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { PlanetDTO } from "@/app/api/planets/route";
 import { Skeleton } from "@/src/shadcn/ui/skeleton";
 import {
 	Table,
@@ -17,6 +16,7 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/src/shadcn/ui/table";
+import type { PlanetDTO } from "@/src/types/planet";
 import columns from "./columns";
 
 type PlanetsResponse = {
