@@ -28,7 +28,10 @@ export async function GET(request: NextRequest) {
 		url.searchParams.set("page", String(page));
 
 		const response = await fetch(url, {
-			headers: { Accept: "application/json" },
+			headers: {
+				accept: "application/json",
+				"Content-Type": "application/json",
+			},
 		});
 
 		if (!response.ok) {
