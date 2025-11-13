@@ -46,16 +46,17 @@ export default function PlanetsTable() {
 			const currentPage = Number.isNaN(pageParam) ? 1 : pageParam;
 
 			const response = await fetch(`/api/planets?page=${currentPage}`);
+
+			if (!response.ok) {
+				throw new Error(`Error ${response.status}: ${response.statusText}`);
+			}
+
 			const data = (await response.json()) as
 				| PlanetsResponse
 				| { error?: string };
 
-			if (!response.ok || "error" in data) {
-				const errorMessage =
-					"error" in data
-						? data.error
-						: `Error ${response.status}: ${response.statusText}`;
-				throw new Error(errorMessage ?? "Error desconocido");
+			if ("error" in data) {
+				throw new Error(data.error);
 			}
 
 			return data as PlanetsResponse;
