@@ -1,86 +1,137 @@
+import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
 const SWAPI_PLANETS_ENDPOINT = "https://swapi.py4e.com/api/planets/";
+const PLANETS_PER_PAGE = 10;
+
+function transformStringToNumberOrNull(value: string): number | null {
+	if (value === "unknown") return null;
+
+	const valueNum = Number.parseFloat(value);
+	if (Number.isNaN(valueNum)) return null;
+
+	return valueNum;
+}
+
+function transformStringToPeriodOrNull(
+	value: string,
+): { days: number; hours: number } | null {
+	if (value === "unknown") return null;
+
+	const valueNum = Number.parseFloat(value);
+	if (Number.isNaN(valueNum)) return null;
+
+	const days = Math.floor(valueNum / 24);
+	const hours = valueNum % 24;
+	return { days, hours };
+}
+
+const GRAVITY_CONSTANT = 9.8;
+function transformStringToGravityOrNull(value: string): number | null {
+	if (value === "unknown") return null;
+
+	const [number] = value.split(" ");
+
+	const valueNum = Number.parseFloat(number);
+	if (Number.isNaN(valueNum)) return null;
+
+	return valueNum * GRAVITY_CONSTANT;
+}
+
+function transformStringToStringArray(value: string): string[] {
+	if (value === "unknown") return [];
+
+	const items = value.split(",");
+	if (items.length === 0) return [];
+
+	return items;
+}
 
 type SwapiPlanet = {
-  name: string;
-  climate: string;
-  terrain: string;
-  gravity: string;
-  diameter: string;
-  rotation_period: string;
-  orbital_period: string;
-  surface_water: string;
-  population: string;
-  residents: string[];
-  films: string[];
+	name: string;
+	climate: string;
+	terrain: string;
+	gravity: string;
+	diameter: string;
+	rotation_period: string;
+	orbital_period: string;
+	surface_water: string;
+	population: string;
+	residents: string[];
+	films: string[];
 };
 
 type PlanetResponse = {
-  next: string | null;
-  results: SwapiPlanet[];
+	count: number;
+	next: string | null;
+	previous: string | null;
+	results: SwapiPlanet[];
 };
 
-type PlanetDTO = Pick<
-  SwapiPlanet,
-  | "name"
-  | "climate"
-  | "terrain"
-  | "gravity"
-  | "diameter"
-  | "rotation_period"
-  | "orbital_period"
-  | "surface_water"
-  | "population"
-  | "residents"
-  | "films"
->;
+export type PlanetDTO = {
+	name: string;
+	climate: string[];
+	terrain: string[];
+	gravity: number | null;
+	diameter: number | null;
+	rotationPeriod: { days: number; hours: number } | null;
+	surfaceWater: number | null;
+	population: number | null;
+	residents: number;
+	films: number;
+};
 
-async function fetchAllPlanets(): Promise<PlanetDTO[]> {
-  const planets: PlanetDTO[] = [];
-  let nextUrl: string | null = SWAPI_PLANETS_ENDPOINT;
+export async function GET(request: NextRequest) {
+	const pageParam = request.nextUrl.searchParams.get("page");
+	const page = pageParam ? Number.parseInt(pageParam, 10) : 1;
 
-  while (nextUrl) {
-    const response = await fetch(nextUrl, { cache: "no-store" });
+	if (Number.isNaN(page) || page < 1) {
+		return NextResponse.json(
+			{ error: "El parámetro page debe ser un número positivo." },
+			{ status: 400 },
+		);
+	}
 
-    if (!response.ok) {
-      throw new Error(`SWAPI request failed with status ${response.status}`);
-    }
+	try {
+		const url = new URL(SWAPI_PLANETS_ENDPOINT);
+		url.searchParams.set("page", String(page));
 
-    const data: PlanetResponse = await response.json();
+		const response = await fetch(url, { cache: "no-store" });
 
-    data.results.forEach((planet) => {
-      planets.push({
-        name: planet.name,
-        climate: planet.climate,
-        terrain: planet.terrain,
-        gravity: planet.gravity,
-        diameter: planet.diameter,
-        rotation_period: planet.rotation_period,
-        orbital_period: planet.orbital_period,
-        surface_water: planet.surface_water,
-        population: planet.population,
-        residents: planet.residents,
-        films: planet.films,
-      });
-    });
+		if (!response.ok) {
+			throw new Error(`SWAPI request failed with status ${response.status}`);
+		}
 
-    nextUrl = data.next;
-  }
+		const data: PlanetResponse = await response.json();
 
-  return planets;
+		const items: PlanetDTO[] = data.results.map((planet) => {
+			return {
+				name: planet.name,
+				climate: transformStringToStringArray(planet.climate),
+				terrain: transformStringToStringArray(planet.terrain),
+				gravity: transformStringToGravityOrNull(planet.gravity),
+				diameter: transformStringToNumberOrNull(planet.diameter),
+				rotationPeriod: transformStringToPeriodOrNull(planet.rotation_period),
+				surfaceWater: transformStringToNumberOrNull(planet.surface_water),
+				population: transformStringToNumberOrNull(planet.population),
+				residents: planet.residents.length,
+				films: planet.films.length,
+			};
+		});
+
+		return NextResponse.json({
+			data: items,
+			pagination: {
+				totalItems: data.count,
+				perPage: PLANETS_PER_PAGE,
+				page,
+			},
+		});
+	} catch (error) {
+		console.error("Error fetching planets from SWAPI", error);
+		return NextResponse.json(
+			{ error: "No se pudo obtener la información de los planetas." },
+			{ status: 502 },
+		);
+	}
 }
-
-export async function GET() {
-  try {
-    const planets = await fetchAllPlanets();
-    return NextResponse.json({ data: planets });
-  } catch (error) {
-    console.error("Error fetching planets from SWAPI", error);
-    return NextResponse.json(
-      { error: "No se pudo obtener la información de los planetas." },
-      { status: 502 },
-    );
-  }
-}
-
