@@ -17,6 +17,7 @@ import {
 	TableRow,
 } from "@/src/shadcn/ui/table";
 import type { PlanetDTO } from "@/src/types/planet";
+import PopulationCell from "./cells/population-cell";
 import columns from "./columns";
 
 type PlanetsResponse = {
@@ -104,6 +105,20 @@ export default function PlanetsTable() {
 		[planetsData],
 	);
 
+	const totals = useMemo(() => {
+		const validData = data.filter(Boolean);
+		if (validData.length === 0) return null;
+
+		const populationTotal = validData
+			.map((planet) => planet.population)
+			.filter((p): p is number => p !== null)
+			.reduce((sum, p) => sum + p, 0);
+
+		return {
+			population: populationTotal,
+		};
+	}, [data]);
+
 	const table = useReactTable({
 		data,
 		columns,
@@ -116,8 +131,8 @@ export default function PlanetsTable() {
 	const isEmpty = !isPending && !error && data.length === 0;
 
 	return (
-		<div className="flow-root">
-			<div>
+		<div>
+			<div className="min-h-screen mb-10">
 				<Table>
 					<TableHeader>
 						{table.getHeaderGroups().map((headerGroup) => (
@@ -226,6 +241,40 @@ export default function PlanetsTable() {
 						Cargando más planetas...
 					</div>
 				) : null}
+			</div>
+
+			<div className="sticky bottom-0 left-0 right-0 z-10 bg-white shadow-[0_-25px_20px_-12px_rgb(0_0_0/0.15)]">
+				<Table>
+					<TableBody>
+						{!isPending && data.length > 0 && totals ? (
+							<TableRow className="font-semibold">
+								{columns.map((column, index) => {
+									const columnId =
+										"id" in column
+											? column.id
+											: "accessorKey" in column
+												? column.accessorKey
+												: `col-${index}`;
+
+									return (
+										<TableCell
+											key={columnId}
+											style={{
+												width: column.size ?? 100,
+												minWidth: column.size ?? 100,
+												maxWidth: column.size ?? 100,
+											}}
+										>
+											{columnId === "population" ? (
+												<PopulationCell value={totals.population} />
+											) : null}
+										</TableCell>
+									);
+								})}
+							</TableRow>
+						) : null}
+					</TableBody>
+				</Table>
 			</div>
 		</div>
 	);
