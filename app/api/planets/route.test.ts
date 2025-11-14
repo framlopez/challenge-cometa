@@ -59,8 +59,8 @@ describe("GET /api/planets", () => {
 		expect(data.data).toHaveLength(1);
 		expect(data.data[0]).toEqual({
 			name: "Tatooine",
-			climate: ["arid"],
-			terrain: ["desert"],
+			climate: ["árido"],
+			terrain: ["desierto"],
 			gravity: 9.8, // 1 * 9.8
 			diameter: 10465,
 			rotationPeriod: { days: 0, hours: 23 },
@@ -229,8 +229,8 @@ describe("GET /api/planets", () => {
 		const response = await GET(request);
 		const data = await response.json();
 
-		expect(data.data[0].climate).toEqual(["temperate", " tropical"]);
-		expect(data.data[0].terrain).toEqual(["jungle", " rainforests"]);
+		expect(data.data[0].climate).toEqual(["templado", "tropical"]);
+		expect(data.data[0].terrain).toEqual(["jungla", "selvas"]);
 	});
 
 	it("debe usar page=1 por defecto cuando no se proporciona el parámetro", async () => {

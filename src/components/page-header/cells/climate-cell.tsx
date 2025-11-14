@@ -8,7 +8,7 @@ export default function ClimateCell({ value }: { value: string[] }) {
 	return (
 		<div className="flex flex-wrap gap-1">
 			{truncatedValue.map((item) => (
-				<Badge variant="outline" key={item}>
+				<Badge className="capitalize" variant="outline" key={item}>
 					{item}
 				</Badge>
 			))}

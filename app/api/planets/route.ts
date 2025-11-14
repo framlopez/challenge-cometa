@@ -1,10 +1,11 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import {
+	transformClimateToStringArray,
 	transformStringToGravityOrNull,
 	transformStringToNumberOrNull,
 	transformStringToPeriodOrNull,
-	transformStringToStringArray,
+	transformTerrainToStringArray,
 } from "@/src/utils/planet-transformers";
 import {
 	PLANETS_PER_PAGE,
@@ -43,8 +44,8 @@ export async function GET(request: NextRequest) {
 		const items: PlanetDTO[] = data.results.map((planet) => {
 			return {
 				name: planet.name,
-				climate: transformStringToStringArray(planet.climate),
-				terrain: transformStringToStringArray(planet.terrain),
+				climate: transformClimateToStringArray(planet.climate),
+				terrain: transformTerrainToStringArray(planet.terrain),
 				gravity: transformStringToGravityOrNull(planet.gravity),
 				diameter: transformStringToNumberOrNull(planet.diameter),
 				rotationPeriod: transformStringToPeriodOrNull(planet.rotation_period),

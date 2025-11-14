@@ -9,7 +9,7 @@ export default function TerrainCell({ value }: { value: string[] }) {
 		<div className="flex flex-wrap gap-1">
 			{truncatedValue.map((item) => (
 				<Badge
-					className="bg-[#F3EBFF] text-[#873AFF]"
+					className="bg-[#F3EBFF] capitalize text-[#873AFF]"
 					variant="secondary"
 					key={item}
 				>

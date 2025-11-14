@@ -61,3 +61,116 @@ export function transformStringToStringArray(value: string): string[] {
 	return items;
 }
 
+/**
+ * Mapeo de climas de inglés a español
+ */
+const CLIMATE_MAP: Record<string, string> = {
+	arid: "árido",
+	artic: "ártico",
+	"artificial temperate": "templado artificial",
+	frigid: "frígido",
+	frozen: "congelado",
+	hot: "caliente",
+	humid: "húmedo",
+	moist: "húmedo",
+	murky: "turbio",
+	polluted: "contaminado",
+	rocky: "rocoso",
+	subartic: "subártico",
+	superheated: "sobrecalentado",
+	temperate: "templado",
+	tropical: "tropical",
+	windy: "ventoso",
+};
+
+/**
+ * Mapeo de terrenos de inglés a español
+ */
+const TERRAIN_MAP: Record<string, string> = {
+	"acid pools": "lagos ácidos",
+	"airless asteroid": "asteroide sin aire",
+	ash: "ceniza",
+	barren: "estéril",
+	bogs: "pantanos",
+	canyons: "cañones",
+	caves: "cuevas",
+	cities: "ciudades",
+	cityscape: "paisaje urbano",
+	cliffs: "acantilados",
+	desert: "desierto",
+	deserts: "desiertos",
+	fields: "campos",
+	forests: "bosques",
+	"fungus forests": "bosques de hongos",
+	"gas giant": "gigante gaseoso",
+	glaciers: "glaciares",
+	grass: "hierba",
+	grasslands: "praderas",
+	"grassy hills": "colinas herbosas",
+	hills: "colinas",
+	"ice canyons": "cañones de hielo",
+	"ice caves": "cuevas de hielo",
+	islands: "islas",
+	jungle: "jungla",
+	jungles: "junglas",
+	lakes: "lagos",
+	"lava rivers": "ríos de lava",
+	mesas: "mesas",
+	mountain: "montaña",
+	"mountain ranges": "cordilleras",
+	mountains: "montañas",
+	ocean: "océano",
+	oceans: "océanos",
+	plains: "llanuras",
+	plateaus: "mesetas",
+	rainforests: "selvas",
+	reefs: "arrecifes",
+	rivers: "ríos",
+	rock: "roca",
+	"rock arches": "arcos de roca",
+	rocky: "rocoso",
+	"rocky canyons": "cañones rocosos",
+	"rocky deserts": "desiertos rocosos",
+	"rocky islands": "islas rocosas",
+	savanna: "sabana",
+	savannahs: "sabanas",
+	savannas: "sabanas",
+	scrublands: "matorrales",
+	seas: "mares",
+	sinkholes: "sumideros",
+	swamp: "pantano",
+	swamps: "pantanos",
+	"toxic cloudsea": "mar de nubes tóxicas",
+	tundra: "tundra",
+	urban: "urbano",
+	valleys: "valles",
+	verdant: "verde",
+	vines: "enredaderas",
+	volcanoes: "volcanes",
+};
+
+/**
+ * Transforma un array de strings de clima a sus traducciones en español
+ * Si un valor no tiene traducción, retorna el valor original
+ */
+export function transformClimateToStringArray(value: string): string[] {
+	if (value === "unknown") return [];
+
+	const items = value.split(",").map((item) => item.trim());
+	if (items.length === 0) return [];
+
+	return items.map((item) => CLIMATE_MAP[item.toLowerCase()] || item);
+}
+
+/**
+ * Transforma un array de strings de terreno a sus traducciones en español
+ * Si un valor no tiene traducción, retorna el valor original
+ */
+export function transformTerrainToStringArray(value: string): string[] {
+	if (value === "unknown") return [];
+
+	const items = value.split(",").map((item) => item.trim());
+	if (items.length === 0) return [];
+
+	return items.map((item) => TERRAIN_MAP[item.toLowerCase()] || item);
+}
