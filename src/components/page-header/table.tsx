@@ -6,7 +6,9 @@ import {
 	getCoreRowModel,
 	useReactTable,
 } from "@tanstack/react-table";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { LoaderIcon, RotateCwIcon } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Button } from "@/src/shadcn/ui/button";
 import { Skeleton } from "@/src/shadcn/ui/skeleton";
 import {
 	Table,
@@ -31,7 +33,6 @@ type PlanetsResponse = {
 
 export default function PlanetsTable() {
 	const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
-	const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
 	const {
 		data: planetsData,
@@ -71,35 +72,6 @@ export default function PlanetsTable() {
 		},
 	});
 
-	useEffect(() => {
-		const target = loadMoreRef.current;
-
-		if (!target || !hasNextPage) {
-			return undefined;
-		}
-
-		const observer = new IntersectionObserver(
-			(entries) => {
-				const entry = entries[0];
-
-				if (entry.isIntersecting && !isFetchingNextPage) {
-					void fetchNextPage();
-				}
-			},
-			{
-				root: null,
-				rootMargin: "1024px 0px",
-				threshold: 0,
-			},
-		);
-
-		observer.observe(target);
-
-		return () => {
-			observer.disconnect();
-		};
-	}, [fetchNextPage, hasNextPage, isFetchingNextPage]);
-
 	const data = useMemo(
 		() => planetsData?.pages.flatMap((page) => page.data) ?? [],
 		[planetsData],
@@ -131,8 +103,8 @@ export default function PlanetsTable() {
 	const isEmpty = !isPending && !error && data.length === 0;
 
 	return (
-		<div>
-			<div className="min-h-screen mb-10">
+		<>
+			<div className="flex-1">
 				<Table>
 					<TableHeader>
 						{table.getHeaderGroups().map((headerGroup) => (
@@ -215,8 +187,6 @@ export default function PlanetsTable() {
 					</TableBody>
 				</Table>
 
-				<div ref={loadMoreRef} className="h-1 w-full" />
-
 				{error ? (
 					<div className="px-4 py-6 text-sm text-red-600 sm:px-6 lg:px-8">
 						Ocurrió un error al cargar los planetas. Intentá nuevamente más
@@ -230,20 +200,32 @@ export default function PlanetsTable() {
 					</div>
 				) : null}
 
-				{isFetching && data.length > 0 && !isFetchingNextPage ? (
-					<div className="px-4 py-4 text-center text-xs uppercase tracking-wide text-indigo-600 sm:px-6 lg:px-8">
-						Actualizando datos...
-					</div>
-				) : null}
-
-				{isFetchingNextPage ? (
-					<div className="px-4 py-4 text-center text-xs uppercase tracking-wide text-indigo-600 sm:px-6 lg:px-8">
-						Cargando más planetas...
+				{hasNextPage && !isPending && data.length > 0 ? (
+					<div className="px-4 py-6 text-center sm:px-6 lg:px-8">
+						<Button
+							className="rounded-full"
+							variant="outline"
+							type="button"
+							onClick={() => fetchNextPage()}
+							disabled={isFetchingNextPage}
+						>
+							{isFetchingNextPage ? (
+								<>
+									<LoaderIcon className="animate-spin" />
+									Cargando...
+								</>
+							) : (
+								<>
+									<RotateCwIcon />
+									Cargar más
+								</>
+							)}
+						</Button>
 					</div>
 				) : null}
 			</div>
 
-			<div className="sticky bottom-0 left-0 right-0 z-10 bg-white shadow-[0_-25px_20px_-12px_rgb(0_0_0/0.15)]">
+			<div className="sticky bottom-0 left-0 right-0 z-10 bg-white shadow-[0_-25px_20px_-12px_rgb(0_0_0/0.15)] mt-auto">
 				<Table>
 					<TableBody>
 						{!isPending && data.length > 0 && totals ? (
@@ -276,6 +258,6 @@ export default function PlanetsTable() {
 					</TableBody>
 				</Table>
 			</div>
-		</div>
+		</>
 	);
 }
